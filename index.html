@@ -1,529 +1,431 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>suva.</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>suva.</title>
+    <style>
+        :root {
+            --bg-color: #0b0c10;
+            --card-bg: rgba(18, 19, 26, 0.85);
+            --accent-color: #5865f2;
+            --text-main: #ffffff;
+            --text-sub: #b9bbbe;
+            --border-radius: 16px;
+        }
 
-    body {
-      background-color: #0b0c10;
-      color: #ffffff;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow-x: hidden;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-    /* Background Particle Effect Overlay */
-    #bg-canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      pointer-events: none;
-    }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
 
-    /* Landing / Click-To-Enter Screen */
-    #landing-screen {
-      position: fixed;
-      inset: 0;
-      background-color: #000000;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 100;
-      cursor: pointer;
-      transition: opacity 0.8s ease, visibility 0.8s;
-    }
+        /* Animated Background Stars */
+        .bg-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 50% 50%, #1a1c29 0%, #08080c 100%);
+        }
 
-    #landing-screen.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
+        /* Profile Card Container */
+        .card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--border-radius);
+            backdrop-filter: blur(12px);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
 
-    .landing-title {
-      font-size: 3rem;
-      font-weight: 800;
-      letter-spacing: -1px;
-      margin-bottom: 20px;
-    }
+        /* Banner Header */
+        .banner {
+            width: 100%;
+            height: 140px;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
 
-    .landing-subtitle {
-      font-size: 0.85rem;
-      letter-spacing: 4px;
-      color: #8e8e93;
-      text-transform: uppercase;
-      animation: pulse 2s infinite;
-    }
+        /* Avatar Section */
+        .avatar-container {
+            position: relative;
+            margin-top: -50px;
+            margin-left: 20px;
+            display: inline-block;
+        }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            border: 4px solid #12131a;
+            object-fit: cover;
+        }
 
-    /* Main Container Card */
-    .profile-card {
-      position: relative;
-      z-index: 10;
-      width: 100%;
-      max-width: 420px;
-      background: rgba(18, 19, 26, 0.75);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-      margin: 20px;
-      opacity: 0;
-      transform: translateY(20px);
-      transition: opacity 0.8s ease 0.3s, transform 0.8s ease 0.3s;
-    }
+        .status-dot {
+            width: 16px;
+            height: 16px;
+            background-color: #23a55a;
+            border-radius: 50%;
+            border: 3px solid #12131a;
+            position: absolute;
+            bottom: 8px;
+            right: 4px;
+        }
 
-    .profile-card.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+        /* Profile Details */
+        .profile-content {
+            padding: 15px 20px 20px 20px;
+        }
 
-    /* Header Banner */
-    .banner {
-      height: 140px;
-      background: url('https://images.unsplash.com/photo-1522383225653-ed111181a951?auto=format&fit=crop&w=800&q=80') center/cover no-repeat;
-      position: relative;
-    }
+        .username-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #5865f2;
+            letter-spacing: -0.5px;
+        }
 
-    /* Profile Header Info */
-    .profile-header {
-      padding: 0 20px 15px 20px;
-      position: relative;
-      margin-top: -45px;
-    }
+        .handle-row {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-top: 2px;
+            margin-bottom: 12px;
+        }
 
-    .avatar-wrapper {
-      position: relative;
-      display: inline-block;
-    }
+        .badges {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
 
-    .avatar {
-      width: 86px;
-      height: 86px;
-      border-radius: 50%;
-      border: 4px solid #12131a;
-      object-fit: cover;
-      background: #202225;
-    }
+        .badge {
+            background: rgba(255, 255, 255, 0.06);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #d1d5db;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-    .status-dot {
-      position: absolute;
-      bottom: 8px;
-      right: 4px;
-      width: 16px;
-      height: 16px;
-      background-color: #faa81a; /* Idle / Moon status */
-      border: 3px solid #12131a;
-      border-radius: 50%;
-    }
+        /* Custom Audio Player */
+        .player-card {
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
 
-    /* Status Bubble */
-    .status-bubble {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.95);
-      color: #1c1e21;
-      padding: 8px 14px;
-      border-radius: 18px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      margin-left: 10px;
-      vertical-align: top;
-      margin-top: 50px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      position: relative;
-    }
+        .player-header {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #1db954;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
 
-    .status-bubble::before {
-      content: '';
-      position: absolute;
-      left: -6px;
-      top: 50%;
-      transform: translateY(-50%);
-      border-width: 6px 6px 6px 0;
-      border-style: solid;
-      border-color: transparent rgba(255, 255, 255, 0.95) transparent transparent;
-    }
+        .song-details {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
 
-    /* User Meta Details */
-    .user-info {
-      margin-top: 12px;
-    }
+        .album-art {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
 
-    .display-name {
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #8cb8ff;
-      letter-spacing: -0.5px;
-    }
+        .song-info {
+            flex-grow: 1;
+        }
 
-    .username-pronouns {
-      font-size: 0.9rem;
-      color: #a3a6aa;
-      margin-top: 2px;
-    }
+        .song-title {
+            font-size: 15px;
+            font-weight: 700;
+        }
 
-    /* Badges Pill */
-    .badges-row {
-      display: flex;
-      gap: 6px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
+        .song-artist {
+            font-size: 13px;
+            color: var(--text-sub);
+        }
 
-    .badge {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      color: #dbdee1;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
+        .play-btn {
+            background: #ffffff;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.1s ease;
+        }
 
-    /* Content Cards Section */
-    .content-section {
-      padding: 0 20px 20px 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+        .play-btn:active {
+            transform: scale(0.92);
+        }
 
-    .card-box {
-      background: rgba(0, 0, 0, 0.25);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 16px;
-      padding: 14px;
-    }
+        /* Bio Box */
+        .bio-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #e1e1e1;
+            margin-bottom: 16px;
+        }
 
-    .card-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: #949ba4;
-      font-weight: 700;
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+        .bio-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
 
-    /* Spotify Widget */
-    .spotify-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+        /* Footer / Admin Trigger */
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            padding-top: 5px;
+            transition: color 0.2s;
+        }
 
-    .album-art {
-      width: 54px;
-      height: 54px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
+        .footer:hover {
+            color: var(--text-sub);
+        }
 
-    .track-details {
-      flex: 1;
-      overflow: hidden;
-    }
+        /* Admin Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
 
-    .track-name {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: #ffffff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+        .modal {
+            background: #12131a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 360px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+        }
 
-    .artist-name {
-      font-size: 0.82rem;
-      color: #b5bac1;
-    }
+        .modal h3 {
+            margin-bottom: 16px;
+            font-size: 18px;
+            text-align: center;
+        }
 
-    .progress-bar-container {
-      margin-top: 10px;
-    }
+        .modal input {
+            width: 100%;
+            padding: 10px 12px;
+            margin-bottom: 12px;
+            background: #0b0c10;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            outline: none;
+        }
 
-    .progress-bar {
-      width: 100%;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.15);
-      border-radius: 2px;
-      overflow: hidden;
-    }
+        .modal input:focus {
+            border-color: var(--accent-color);
+        }
 
-    .progress-fill {
-      width: 35%;
-      height: 100%;
-      background: #1db954;
-    }
+        .modal-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
 
-    .time-stamps {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.7rem;
-      color: #949ba4;
-      margin-top: 4px;
-    }
+        .admin-dashboard {
+            display: none;
+            text-align: left;
+        }
 
-    /* Music Play Button Control */
-    .player-controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-top: 8px;
-    }
-
-    .play-btn {
-      background: #ffffff;
-      color: #000;
-      border: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .play-btn:hover {
-      transform: scale(1.08);
-    }
-
-    /* Bio Text */
-    .bio-text {
-      font-size: 0.9rem;
-      color: #dbdee1;
-      line-height: 1.4;
-    }
-
-    /* Social Icons Row */
-    .socials-row {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      margin-top: 4px;
-    }
-
-    .social-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      color: #ffffff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      font-size: 1.1rem;
-      transition: background 0.2s, transform 0.2s;
-    }
-
-    .social-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: translateY(-2px);
-    }
-
-    /* Footer */
-    .card-footer {
-      text-align: center;
-      padding: 12px;
-      font-size: 0.75rem;
-      color: #6d6f78;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-  </style>
+        .admin-dashboard h4 {
+            color: #23a55a;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Background Canvas for Floating Stars/Particles -->
-  <canvas id="bg-canvas"></canvas>
+    <div class="bg-particles"></div>
 
-  <!-- Splash Screen -->
-  <div id="landing-screen">
-    <h1 class="landing-title">suva.</h1>
-    <p class="landing-subtitle">CLICK TO ENTER</p>
-  </div>
+    <div class="card">
+        <!-- Banner Image -->
+        <div class="banner" style="background-image: url('image_19.png');"></div>
 
-  <!-- Background Audio -->
-  <audio id="bg-audio" loop>
-    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg" />
-  </audio>
-
-  <!-- Profile Card -->
-  <div class="profile-card" id="profile-card">
-    
-    <!-- Cherry Blossom Header Banner -->
-    <div class="banner"></div>
-
-    <!-- Profile Header -->
-    <div class="profile-header">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-        <div class="avatar-wrapper">
-          <img class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Avatar" />
-          <div class="status-dot"></div>
+        <!-- Avatar & Status -->
+        <div class="avatar-container">
+            <img src="image_20.png" alt="Profile" class="avatar">
+            <div class="status-dot"></div>
         </div>
 
-        <div class="status-bubble">
-          <i class="fa-solid font-plus" style="font-size: 0.7rem;"></i> What have you been watching?
+        <!-- Main Content -->
+        <div class="profile-content">
+            <div class="username-title">suva.</div>
+            <div class="handle-row">soxsuva</div>
+
+            <div class="badges">
+                <span class="badge">⚡ ZFC</span>
+                <span class="badge">✈️ Suva</span>
+                <span class="badge">👑 VIP</span>
+            </div>
+
+            <!-- Music Player -->
+            <div class="player-card">
+                <div class="player-header">
+                    <span>Listening to Audio</span>
+                </div>
+                <div class="song-details">
+                    <img src="image_21.png" alt="Album Cover" class="album-art">
+                    <div class="song-info">
+                        <div class="song-title">misery.</div>
+                        <div class="song-artist">pupsies</div>
+                    </div>
+                    <button class="play-btn" onclick="toggleAudio()">
+                        <span id="play-icon">▶</span>
+                    </button>
+                </div>
+                <audio id="audio-player" loop src="audio.mp3"></audio>
+            </div>
+
+            <!-- Bio Box -->
+            <div class="bio-box">
+                <div class="bio-title">Bio</div>
+                <div>welcome to suva.</div>
+            </div>
+
+            <div class="footer" onclick="openAdminModal()">
+                Created by suva.
+            </div>
         </div>
-      </div>
-
-      <div class="user-info">
-        <h2 class="display-name">suva.</h2>
-        <p class="username-pronouns">soxsuvaa • she/her</p>
-      </div>
-
-      <!-- Discord-styled Badges -->
-      <div class="badges-row">
-        <div class="badge"><i class="fa-solid fa-bolt"></i> ZFC</div>
-        <div class="badge"><i class="fa-solid fa-paper-plane"></i></div>
-        <div class="badge"><i class="fa-solid fa-shapes"></i></div>
-        <div class="badge"><i class="fa-solid fa-sparkles"></i></div>
-      </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="content-section">
-      
-      <!-- Spotify Card -->
-      <div class="card-box">
-        <div class="card-title">
-          <i class="fa-brands fa-spotify" style="color: #1db954;"></i> Listening to Spotify
-        </div>
-        <div class="spotify-container">
-          <img class="album-art" src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=200&q=80" alt="Album Art" />
-          <div class="track-details">
-            <div class="track-name">misery.</div>
-            <div class="artist-name">pupsies</div>
-          </div>
-        </div>
-        
-        <div class="progress-bar-container">
-          <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill"></div>
-          </div>
-          <div class="time-stamps">
-            <span id="current-time">0:16</span>
-            <span>2:46</span>
-          </div>
-        </div>
+    <!-- Secure Admin Modal Panel -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal">
+            <div id="login-form">
+                <h3>Admin Access</h3>
+                <input type="email" id="adminEmail" placeholder="Email">
+                <input type="password" id="adminPassword" placeholder="Password">
+                <button class="modal-btn" onclick="verifyAdmin()">Login</button>
+            </div>
 
-        <div class="player-controls">
-          <button class="play-btn" id="audio-toggle">
-            <i class="fa-solid fa-pause" id="play-icon"></i>
-          </button>
+            <div id="admin-dashboard" class="admin-dashboard">
+                <h4>System Status: Secure</h4>
+                <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 15px;">Admin logged in as soxsuva@gmail.com</p>
+                <button class="modal-btn" style="background: #da373c;" onclick="closeAdminModal()">Close Panel</button>
+            </div>
         </div>
-      </div>
-
-      <!-- Bio Box -->
-      <div class="card-box">
-        <div class="card-title">Bio</div>
-        <div class="bio-text">hi</div>
-      </div>
-
-      <!-- Social Links -->
-      <div class="socials-row">
-        <a href="#" class="social-btn"><i class="fa-brands fa-tiktok"></i></a>
-        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
-        <a href="#" class="social-btn"><i class="fa-brands fa-discord"></i></a>
-        <a href="#" class="social-btn"><i class="fa-brands fa-twitch"></i></a>
-        <a href="#" class="social-btn"><i class="fa-brands fa-snapchat"></i></a>
-      </div>
-
     </div>
 
-    <!-- Footer -->
-    <div class="card-footer">
-      Created by suva.
-    </div>
+    <script>
+        function toggleAudio() {
+            const player = document.getElementById('audio-player');
+            const icon = document.getElementById('play-icon');
+            if (player.paused) {
+                player.play();
+                icon.textContent = '❚❚';
+            } else {
+                player.pause();
+                icon.textContent = '▶';
+            }
+        }
 
-  </div>
+        function openAdminModal() {
+            document.getElementById('adminModal').style.display = 'flex';
+        }
 
-  <script>
-    // Audio and Screen Switch logic
-    const landingScreen = document.getElementById('landing-screen');
-    const profileCard = document.getElementById('profile-card');
-    const audio = document.getElementById('bg-audio');
-    const playIcon = document.getElementById('play-icon');
-    const audioToggle = document.getElementById('audio-toggle');
+        function closeAdminModal() {
+            document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('admin-dashboard').style.display = 'none';
+            document.getElementById('adminEmail').value = '';
+            document.getElementById('adminPassword').value = '';
+        }
 
-    landingScreen.addEventListener('click', () => {
-      landingScreen.classList.add('hidden');
-      profileCard.classList.add('visible');
-      audio.play().catch(() => {});
-    });
+        // SHA-256 Hashing for Client-Side Security Verification
+        async function hashString(str) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(str);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
 
-    audioToggle.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play();
-        playIcon.className = 'fa-solid fa-pause';
-      } else {
-        audio.pause();
-        playIcon.className = 'fa-solid fa-play';
-      }
-    });
+        async function verifyAdmin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value;
 
-    // Particle Background Effect
-    const canvas = document.getElementById('bg-canvas');
-    const ctx = canvas.getContext('2d');
+            // Pre-calculated SHA-256 hashes for credentials
+            const targetEmailHash = "be3cf9b3f37bcf7b23395d8efd234c264b3ef1bd588fb7c81d86d5e1ef93bfbc"; // soxsuva@gmail.com
+            const targetPassHash = "9d36440e0be2cb003b1e35bb3d1b802e8d350ecbc9219c6767eb27eb2bf0cdd3"; // Bullhorn79!
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+            const inputEmailHash = await hashString(email);
+            const inputPassHash = await hashString(password);
 
-    const particles = Array.from({ length: 60 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      radius: Math.random() * 1.5 + 0.5,
-      alpha: Math.random(),
-      speed: Math.random() * 0.3 + 0.1
-    }));
+            if (inputEmailHash === targetEmailHash && inputPassHash === targetPassHash) {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('admin-dashboard').style.display = 'block';
+            } else {
+                alert('Invalid Credentials');
+            }
+        }
 
-    function animateParticles() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.y -= p.speed;
-        if (p.y < 0) p.y = canvas.height;
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
-        ctx.fill();
-      });
-      requestAnimationFrame(animateParticles);
-    }
-    animateParticles();
-  </script>
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('adminModal');
+            if (event.target === modal) {
+                closeAdminModal();
+            }
+        }
+    </script>
 </body>
 </html>
